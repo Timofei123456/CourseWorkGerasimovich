@@ -27,9 +27,9 @@ public class Main {
      */
     public static void main(String[] args) throws InterruptedException {
         ConfigurableApplicationContext ctx = SpringApplication.run(Main.class);
-        AccountService accountService = ctx.getBean(AccountService.class);
         TransactionService transactionService = ctx.getBean(TransactionService.class);
         ClientService clientService = ctx.getBean(ClientService.class);
+        AccountService accountService = ctx.getBean(AccountService.class);
 
         Client client = new Client();
         client.setName("ffff");
@@ -45,7 +45,7 @@ public class Main {
         Account ac = new Account();
         ac.setAccountType("aaaaa");
         ac.setClient(cl);
-        AccountService.save(ac);
+        accountService.save(ac);
 
         Transaction transaction = new Transaction();
         transaction.setTransactionType("New type");
@@ -60,7 +60,7 @@ public class Main {
         List<Client> clients = clientService.read();
         clients.forEach(System.out::println);
 
-        List<Account> accounts = AccountService.read();
+        List<Account> accounts = accountService.read();
         accounts.forEach(System.out::println);
 
         Thread.sleep(50);
@@ -73,7 +73,7 @@ public class Main {
         client = clientService.read(1L);
         System.out.println(client);
 
-        ac = AccountService.read(1L);
+        ac = accountService.read(1L);
         System.out.println(ac);
         ac.setAccountType("New Account Type");
         accountService.edit(ac);

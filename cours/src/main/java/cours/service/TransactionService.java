@@ -8,5 +8,5 @@ public interface TransactionService extends Service<Transaction> {
 
     List<Transaction> readByAccount(Long accountId);
 
-    Transaction readByTransactionType(String type);
+    List<Transaction> readByTransactionType(String type);
 }

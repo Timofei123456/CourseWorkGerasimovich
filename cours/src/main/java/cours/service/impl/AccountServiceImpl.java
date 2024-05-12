@@ -1,15 +1,14 @@
 package cours.service.impl;
 
-import java.util.List;
-
+import cours.entity.Account;
+import cours.entity.Client;
+import cours.repository.AccountRepository;
+import cours.repository.ClientRepository;
+import cours.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cours.entity.Client;
-import cours.entity.Account;
-import cours.repository.ClientRepository;
-import cours.repository.AccountRepository;
-import cours.service.AccountService;
+import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -54,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Account> readByClient(Long clientId) {
-        return aRepository.findByClient(clientId);
+        return aRepository.findByClientId(clientId);
     }
 
     @Override

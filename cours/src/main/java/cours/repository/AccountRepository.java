@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
-
-    List<Account> findByClient(Long id);
-
+    List<Account> findByClientId(Long id);
     Account findByAccountType(String accountType);
 }

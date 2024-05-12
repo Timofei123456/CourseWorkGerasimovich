@@ -1,15 +1,14 @@
 package cours.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import cours.entity.Account;
 import cours.entity.Transaction;
 import cours.repository.AccountRepository;
 import cours.repository.TransactionRepository;
 import cours.service.TransactionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -47,13 +46,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction readByTransactionType(String type) {
+    public List<Transaction> readByTransactionType(String type) {
         return tRepository.findByTransactionType(type);
     }
 
     @Override
     public List<Transaction> readByAccount(Long accountId) {
-        return tRepository.findByAccount(accountId);
+        return tRepository.findByAccountId(accountId);
     }
 
     @Override
