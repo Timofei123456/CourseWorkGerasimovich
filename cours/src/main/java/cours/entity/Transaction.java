@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "transactions")
@@ -22,5 +22,5 @@ public class Transaction extends AbstractEntity {
     @Column(name = "tr_amount")
     private Double amount;
     @Column(name = "tr_date")
-    private Date transactionDate;
+    private LocalDate transactionDate;
 }
