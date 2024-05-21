@@ -19,7 +19,7 @@ public class TransactionController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransaction() {
+    public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> entities = service.read();
         if (entities.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

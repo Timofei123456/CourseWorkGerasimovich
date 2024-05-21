@@ -40,7 +40,7 @@ public class ClientController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @GetMapping("/name/{name}")
-    public ResponseEntity<Client> getClientsByClientName(@PathVariable String name) {
+    public ResponseEntity<Client> getByClientName(@PathVariable String name) {
         Client client = service.readByName(name);
         if (client == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

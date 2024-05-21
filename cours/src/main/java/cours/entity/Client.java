@@ -1,6 +1,7 @@
 package cours.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,12 @@ public class Client extends AbstractEntity {
     private String email;
     @Column(name = "cl_phone")
     private String phone;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "client", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Account> accounts;
 }

@@ -13,46 +13,46 @@ import java.util.List;
 @Service
 public class TransactionServiceImpl implements TransactionService {
     @Autowired
-    private TransactionRepository tRepository;
+    private TransactionRepository transactionRepository;
     @Autowired
-    private AccountRepository aRepository;
+    private AccountRepository accountRepository;
 
     @Override
     public Transaction read(Long id) {
-        return tRepository.findById(id).get();
+        return transactionRepository.findById(id).get();
     }
 
     @Override
     public List<Transaction> read() {
-        return tRepository.findAll();
+        return transactionRepository.findAll();
     }
 
     @Override
     public void save(Transaction entity) {
         Account account = entity.getAccount();
         Long id = account.getId();
-        account = aRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        account = accountRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         entity.setAccount(account);
         account.getTransactions().add(entity);
-        aRepository.save(account);
+        accountRepository.save(account);
     }
 
     @Override
     public void delete(Long id) {
-        Transaction transaction = tRepository.findById(id).get();
+        Transaction transaction = transactionRepository.findById(id).get();
         Account account = transaction.getAccount();
         account.getTransactions().remove(transaction);
-        aRepository.save(account);
+        accountRepository.save(account);
     }
 
     @Override
     public List<Transaction> readByTransactionType(String type) {
-        return tRepository.findByTransactionType(type);
+        return transactionRepository.findByTransactionType(type);
     }
 
     @Override
     public List<Transaction> readByAccount(Long accountId) {
-        return tRepository.findByAccountId(accountId);
+        return transactionRepository.findByAccountId(accountId);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = entity.getAccount();
         Long gId = account.getId();
         Long sId = entity.getId();
-        account = aRepository.findById(gId).orElseThrow(IllegalArgumentException::new);
+        account = accountRepository.findById(gId).orElseThrow(IllegalArgumentException::new);
         Transaction transaction = account.getTransactions().stream().filter(s -> sId.equals(s.getId())).findAny()
                 .orElseThrow(IllegalArgumentException::new);
         transaction.setAccount(account);
@@ -68,6 +68,6 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTransactionDate(entity.getTransactionDate());
         transaction.setAmount(entity.getAmount());
         account.getTransactions().add(transaction);
-        tRepository.save(transaction);
+        transactionRepository.save(transaction);
     }
 }

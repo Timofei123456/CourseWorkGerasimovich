@@ -14,46 +14,46 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
-    private AccountRepository aRepository;
+    private AccountRepository accountRepository;
     @Autowired
-    private ClientRepository cRepository;
+    private ClientRepository clientRepository;
 
     @Override
     public Account read(Long id) {
-        return aRepository.findById(id).get();
+        return accountRepository.findById(id).get();
     }
 
     @Override
     public List<Account> read() {
-        return aRepository.findAll();
+        return accountRepository.findAll();
     }
 
     @Override
     public void save(Account entity) {
         Client client = entity.getClient();
         Long id = client.getId();
-        client = cRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        client = clientRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         entity.setClient(client);
         client.getAccounts().add(entity);
-        cRepository.save(client);
+        clientRepository.save(client);
     }
 
     @Override
     public void delete(Long id) {
-        Account account = aRepository.findById(id).get();
+        Account account = accountRepository.findById(id).get();
         Client client = account.getClient();
         client.getAccounts().remove(account);
-        cRepository.save(client);
+        clientRepository.save(client);
     }
 
     @Override
     public Account readByAccountType(String type) {
-        return aRepository.findByAccountType(type);
+        return accountRepository.findByAccountType(type);
     }
 
     @Override
     public List<Account> readByClient(Long clientId) {
-        return aRepository.findByClientId(clientId);
+        return accountRepository.findByClientId(clientId);
     }
 
     @Override
@@ -61,12 +61,12 @@ public class AccountServiceImpl implements AccountService {
         Client client = entity.getClient();
         Long fId = client.getId();
         Long gId = entity.getId();
-        client = cRepository.findById(fId).orElseThrow(IllegalArgumentException::new);
+        client = clientRepository.findById(fId).orElseThrow(IllegalArgumentException::new);
         Account account = client.getAccounts().stream().filter(g -> gId.equals(g.getId())).findAny()
                 .orElseThrow(IllegalArgumentException::new);
         account.setClient(client);
         account.setAccountType(entity.getAccountType());
         client.getAccounts().add(account);
-        aRepository.save(account);
+        accountRepository.save(account);
     }
 }

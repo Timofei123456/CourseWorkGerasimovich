@@ -1,17 +1,21 @@
 package cours.service.impl;
 
+import cours.entity.Client;
+import cours.entity.User;
+import cours.repository.ClientRepository;
+import cours.repository.UserRepository;
+import cours.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import cours.entity.Client;
-import cours.repository.ClientRepository;
-import cours.service.ClientService;
+
 import java.util.List;
 
 @Service
 public class ClientServiceImpl implements ClientService {
-
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Client read(Long id) {
@@ -22,15 +26,24 @@ public class ClientServiceImpl implements ClientService {
     public List<Client> read() {
         return clientRepository.findAll();
     }
-
+    @Override
+    public List<Client> readByUser_Id(Long userId) {
+        return clientRepository.findByUser_Id(userId);
+    }
     @Override
     public void save(Client entity) {
-        clientRepository.save(entity);
+        User user = entity.getUser();
+        Long id = user.getId();
+        user = userRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+        entity.setUser(user);
+        userRepository.save(user);
     }
 
     @Override
     public void delete(Long id) {
-        clientRepository.deleteById(id);
+        Client client = clientRepository.findById(id).get();
+        User user = client.getUser();
+        userRepository.save(user);
     }
 
     @Override
@@ -40,11 +53,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void edit(Client entity) {
-        Client client = clientRepository.findById(entity.getId()).orElseThrow(IllegalArgumentException::new);
+        User user = entity.getUser();
+        Long uId = user.getId();
+        Long cId = entity.getId();
+        user = userRepository.findById(uId).orElseThrow(IllegalArgumentException::new);
+        Client client = clientRepository.findById(cId).orElseThrow(IllegalArgumentException::new);
+        client.setUser(user);
         client.setName(entity.getName());
-        client.setSurname(entity.getSurname());
-        client.setEmail(entity.getEmail());
-        client.setPhone(entity.getPhone());
         clientRepository.save(client);
     }
 }

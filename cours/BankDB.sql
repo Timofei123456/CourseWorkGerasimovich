@@ -6,6 +6,7 @@ USE bank;
 DROP TABLE IF EXISTS transactions; 
 DROP TABLE IF EXISTS accounts; 
 DROP TABLE IF EXISTS clients; 
+DROP TABLE IF EXISTS users; 
 
 CREATE TABLE `clients` (
   `cl_id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -53,3 +54,22 @@ CREATE TABLE `transactions` (
 INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('FFF', '123.45', '2023-01-31', 1);
 INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('dsdfs', '678.90', '2022-02-26', 1);
 INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('sdfg', '345.67', '2021-03-15', 2);
+
+CREATE TABLE `users` (
+  `us_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(64) NOT NULL,
+  `password` VARCHAR(64) NOT NULL,
+  `role` ENUM('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERADMIN') NOT NULL,
+  `cl_id` BIGINT,
+  PRIMARY KEY (`us_id`),
+  CONSTRAINT `usk`
+    FOREIGN KEY (`cl_id`)
+    REFERENCES `clients` (`cl_id`)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+INSERT INTO `users` (`username`, `password`, `role`, `cl_id`) VALUES ('client1', '$2a$12$hywNaTjlnrvSZSmWK1Ow0ukltmehitcHlwHvPQpOnQpzxnPcGZgg6', 'ROLE_USER', 1);
+INSERT INTO `users` (`username`, `password`, `role`, `cl_id`) VALUES('client2', '$2a$12$deMZlg9.yUhSJ2hqeYKk8OBvzRNPUTHW0vFCsgnSD6sTcVRGvS56e', 'ROLE_USER', 2);
+INSERT INTO `users` (`username`, `password`, `role`) VALUES('superadmin', '$2a$12$viwYLojchkrK3joWvD0McOOo23tJ3rs9rpesCrBgfL3ncrZOmZ3MK', 'ROLE_SUPERADMIN');
+INSERT INTO `users` (`username`, `password`, `role`) VALUES('admin', '$2a$12$Ua6Ls0dHTmxfpP63uXPfH.pvbQs2YlZpjLKrSFfcT6D/eqj/TA2QO', 'ROLE_ADMIN');
