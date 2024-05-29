@@ -21,15 +21,11 @@ public class ClientServiceImpl implements ClientService {
     public Client read(Long id) {
         return clientRepository.findById(id).orElseThrow(IllegalArgumentException::new);
     }
-
     @Override
     public List<Client> read() {
         return clientRepository.findAll();
     }
-    @Override
-    public List<Client> readByUser_Id(Long userId) {
-        return clientRepository.findByUser_Id(userId);
-    }
+
     @Override
     public void save(Client entity) {
         User user = entity.getUser();

@@ -27,7 +27,6 @@ public class AccountServiceImpl implements AccountService {
     public List<Account> read() {
         return accountRepository.findAll();
     }
-
     @Override
     public void save(Account entity) {
         Client client = entity.getClient();

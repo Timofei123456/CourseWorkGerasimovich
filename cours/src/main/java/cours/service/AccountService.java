@@ -7,6 +7,5 @@ import java.util.List;
 public interface AccountService extends Service<Account> {
 
     List<Account> readByClient(Long clientId);
-
     Account readByAccountType(String type);
 }

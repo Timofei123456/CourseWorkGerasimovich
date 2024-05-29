@@ -22,7 +22,6 @@ public class User extends AbstractEntity implements UserDetails {
 
     @Column(name = "password", nullable = false)
     private String password;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
@@ -30,10 +29,6 @@ public class User extends AbstractEntity implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cl_id", referencedColumnName = "cl_id")
     private Client client;
-
-    public Client getClient() {
-        return this.client;
-    }
     @Override
     public List<SimpleGrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

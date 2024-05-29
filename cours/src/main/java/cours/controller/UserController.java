@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -35,7 +35,7 @@ public class UserController {
         if (currentUser.getId().equals(user.getId()) && currentUser.getRole().equals(Role.ROLE_USER)) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
-        else if(currentUser.getRole().equals(Role.ROLE_ADMIN)){
+        else if(currentUser.getRole().equals(Role.ROLE_ADMIN) || currentUser.getRole().equals(Role.ROLE_SUPERADMIN)){
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
         else {

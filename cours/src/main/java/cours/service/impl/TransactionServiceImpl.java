@@ -32,6 +32,7 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = entity.getAccount();
         Long id = account.getId();
         account = accountRepository.findById(id).orElseThrow(IllegalArgumentException::new);
+
         entity.setAccount(account);
         account.getTransactions().add(entity);
         accountRepository.save(account);

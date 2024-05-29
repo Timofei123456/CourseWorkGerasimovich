@@ -51,9 +51,9 @@ CREATE TABLE `transactions` (
     ON UPDATE NO ACTION
 );
 
-INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('FFF', '123.45', '2023-01-31', 1);
-INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('dsdfs', '678.90', '2022-02-26', 1);
-INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('sdfg', '345.67', '2021-03-15', 2);
+INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('withdrawal', '123.45', '2023-01-31', 1);
+INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('deposit', '678.90', '2022-02-26', 1);
+INSERT INTO `transactions` (`tr_type`, `tr_amount`, `tr_date`, `ac_id`) VALUES ('deposit', '345.67', '2021-03-15', 2);
 
 CREATE TABLE `users` (
   `us_id` BIGINT NOT NULL AUTO_INCREMENT,

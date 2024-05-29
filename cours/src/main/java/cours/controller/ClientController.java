@@ -1,24 +1,31 @@
 package cours.controller;
 
 import cours.entity.Client;
+import cours.entity.Role;
+import cours.entity.User;
 import cours.service.ClientService;
+import cours.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
-@RequestMapping("api/client")
+@RequestMapping("/client")
 public class ClientController {
     @Autowired
     private ClientService service;
+    @Autowired
+    private UserService userService;
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @GetMapping
     public ResponseEntity<List<Client>> getAllClients() {
         List<Client> entities = service.read();
@@ -28,38 +35,30 @@ public class ClientController {
         return new ResponseEntity<>(entities, HttpStatus.OK);
     }
 
-    @PreAuthorize("#id == principal.id or hasAnyRole('ADMIN', 'SUPERADMIN')")
-    @GetMapping("/{id}")
-    public ResponseEntity<Client> getByClientId(@PathVariable long id) {
-        Client entity = service.read(id);
-        if (entity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(entity, HttpStatus.OK);
+    @GetMapping("/{clientId}")
+    public ResponseEntity<Client> getClientById(@PathVariable long clientId) {
+        Client client = service.read(clientId);
+        return checkEntityAndRole(client, clientId);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @GetMapping("/name/{name}")
     public ResponseEntity<Client> getByClientName(@PathVariable String name) {
         Client client = service.readByName(name);
-        if (client == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(client, HttpStatus.OK);
+        return checkEntityAndRole(client, client.getId());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> putClient(@RequestBody Client entity) {
         service.edit(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("#entity.id == principal.id or hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postClient(@RequestBody Client entity) {
-        service.save(entity);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+            service.save(entity);
+            return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('SUPERADMIN')")
@@ -67,5 +66,29 @@ public class ClientController {
     public ResponseEntity<String> deleteClientDyId(@PathVariable long id) {
         service.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        return userService.getByUsername(currentPrincipalName);
+    }
+
+    private ResponseEntity<Client> checkEntityAndRole(Client client, Long clientId) {
+        if (client == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        User currentUser = getCurrentUser();
+
+        if (currentUser.getClient().getId().equals(clientId) && currentUser.getRole().equals(Role.ROLE_USER)) {
+            return new ResponseEntity<>(client, HttpStatus.OK);
+        }
+        else if(currentUser.getRole().equals(Role.ROLE_ADMIN) || currentUser.getRole().equals(Role.ROLE_SUPERADMIN)){
+            return new ResponseEntity<>(client, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 }
