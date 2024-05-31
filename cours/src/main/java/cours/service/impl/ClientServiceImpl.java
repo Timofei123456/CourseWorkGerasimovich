@@ -33,6 +33,7 @@ public class ClientServiceImpl implements ClientService {
         user = userRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         entity.setUser(user);
         userRepository.save(user);
+        clientRepository.save(entity);
     }
 
     @Override

@@ -5,6 +5,7 @@ import cours.dto.SignInRequest;
 import cours.dto.SignUpRequest;
 import cours.entity.Role;
 import cours.entity.User;
+import cours.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,8 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+
+    private final UserRepository userRepository;
 
     public JwtAuthenticationResponse signUp(SignUpRequest request) {
 

@@ -59,16 +59,14 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void edit(Transaction entity) {
         Account account = entity.getAccount();
-        Long gId = account.getId();
-        Long sId = entity.getId();
-        account = accountRepository.findById(gId).orElseThrow(IllegalArgumentException::new);
-        Transaction transaction = account.getTransactions().stream().filter(s -> sId.equals(s.getId())).findAny()
+        Long aId = account.getId();
+        Long tId = entity.getId();
+        account = accountRepository.findById(aId).orElseThrow(IllegalArgumentException::new);
+        Transaction transaction = account.getTransactions().stream().filter(t -> tId.equals(t.getId())).findAny()
                 .orElseThrow(IllegalArgumentException::new);
-        transaction.setAccount(account);
         transaction.setTransactionType(entity.getTransactionType());
         transaction.setTransactionDate(entity.getTransactionDate());
         transaction.setAmount(entity.getAmount());
-        account.getTransactions().add(transaction);
-        transactionRepository.save(transaction);
+        transactionRepository.save(transaction); // Сохраняем транзакцию
     }
 }
