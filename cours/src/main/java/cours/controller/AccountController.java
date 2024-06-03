@@ -95,7 +95,26 @@ public class AccountController {
         service.edit(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PutMapping("/{idAccountForCopy}/{idAccountForEdit}")
+    public ResponseEntity<String> putAccount(@PathVariable long idAccountForCopy, @PathVariable long idAccountForEdit) {
+    Account accountForCopy = service.read(idAccountForCopy);
+    Account accountForEdit = service.read(idAccountForEdit);
 
+    if (accountForCopy == null || accountForEdit == null) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    } else {
+        accountForEdit.setAccountType(accountForCopy.getAccountType());
+        accountForEdit.setTransactions(new ArrayList<>(accountForCopy.getTransactions());
+        accountForEdit.setAccountNumber(accountForCopy.getAccountNumber());
+        accountForEdit.setBalance(accountForCopy.getBalance());
+        accountForEdit.getClient().setId(accountForCopy.getClient().getId()));
+        service.edit(accountForEdit);
+        return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+    
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> postAccount(@RequestBody Account entity) {
         User currentUser = getCurrentUser();
