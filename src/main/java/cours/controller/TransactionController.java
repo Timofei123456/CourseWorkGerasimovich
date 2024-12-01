@@ -1,9 +1,6 @@
 package cours.controller;
 
-import cours.entity.Account;
-import cours.entity.Role;
-import cours.entity.Transaction;
-import cours.entity.User;
+import cours.entity.*;
 import cours.service.TransactionService;
 import cours.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +51,24 @@ public class TransactionController {
         return checkListOfEntityAndRole(transactions);
     }
 
+    @GetMapping("/currentUser")
+    public ResponseEntity<List<Transaction>> getTransactionsOfCurrentUser () {
+        User currentUser  = getCurrentUser();
+        if (currentUser  == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        List<Account> userAccounts = currentUser.getClient().getAccounts();
+        List<Transaction> userTransactions = new ArrayList<>();
+
+        for (Account account : userAccounts) {
+            List<Transaction> transactions = service.readByAccount(account.getId());
+            userTransactions.addAll(transactions);
+        }
+
+        return checkListOfEntityAndRole(userTransactions);
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> putTransaction(@RequestBody Transaction entity) {
@@ -77,11 +92,28 @@ public class TransactionController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @GetMapping("/sortedByDate")
+    public ResponseEntity<List<Transaction>> getAllTransactionsSortedByDate() {
+        List<Transaction> entities = service.readAllSortedByDate();
+        if (entities.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(entities, HttpStatus.OK);
+    }
+
 
     @PreAuthorize("hasRole('SUPERADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransactionById(@PathVariable long id) {
         service.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllTransactions() {
+        service.deleteAll();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -98,15 +130,19 @@ public class TransactionController {
 
         User currentUser = getCurrentUser();
 
-        if (currentUser.getClient().getAccounts().stream()
-                .anyMatch(account -> account.getId().equals(transaction.getAccount().getId())) &&
-                currentUser.getRole().equals(Role.ROLE_USER)) {
-            return new ResponseEntity<>(transaction, HttpStatus.OK);
-        } else if (currentUser.getRole().equals(Role.ROLE_ADMIN) || currentUser.getRole().equals(Role.ROLE_SUPERADMIN)) {
-            return new ResponseEntity<>(transaction, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        Client userClient = currentUser.getClient();
+        if (userClient != null) {
+            if (currentUser.getRole().equals(Role.ROLE_USER) &&
+                    userClient.getAccounts().stream().anyMatch(account -> account.getId().equals(transaction.getAccount().getId()))
+                    ) {
+                return new ResponseEntity<>(transaction, HttpStatus.OK);
+            }
         }
+        if (currentUser .getRole().equals(Role.ROLE_ADMIN) || currentUser .getRole().equals(Role.ROLE_SUPERADMIN)) {
+            return new ResponseEntity<>(transaction, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<List<Transaction>> checkListOfEntityAndRole(List<Transaction> transactions) {

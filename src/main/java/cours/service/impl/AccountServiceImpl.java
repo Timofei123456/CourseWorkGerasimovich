@@ -33,6 +33,7 @@ public class AccountServiceImpl implements AccountService {
         Long id = client.getId();
         client = clientRepository.findById(id).orElseThrow(IllegalArgumentException::new);
         entity.setClient(client);
+        accountRepository.save(entity);
         client.getAccounts().add(entity);
         clientRepository.save(client);
     }
@@ -58,14 +59,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void edit(Account entity) {
         Client client = entity.getClient();
-        Long fId = client.getId();
-        Long gId = entity.getId();
-        client = clientRepository.findById(fId).orElseThrow(IllegalArgumentException::new);
-        Account account = client.getAccounts().stream().filter(g -> gId.equals(g.getId())).findAny()
+        Long cId = client.getId();
+        Long aId = entity.getId();
+        client = clientRepository.findById(cId).orElseThrow(IllegalArgumentException::new);
+        Account account = client.getAccounts().stream().filter(a -> aId.equals(a.getId())).findAny()
                 .orElseThrow(IllegalArgumentException::new);
-        account.setClient(client);
         account.setAccountType(entity.getAccountType());
-        client.getAccounts().add(account);
+        account.setAccountNumber(entity.getAccountNumber());
+        account.setBalance(entity.getBalance());
         accountRepository.save(account);
     }
 }

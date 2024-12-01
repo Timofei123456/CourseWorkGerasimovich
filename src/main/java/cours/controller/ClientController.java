@@ -79,16 +79,19 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        User currentUser = getCurrentUser();
+        User currentUser  = getCurrentUser ();
 
-        if (currentUser.getClient().getId().equals(clientId) && currentUser.getRole().equals(Role.ROLE_USER)) {
+        Client userClient = currentUser .getClient();
+        if (userClient != null) {
+            if (userClient.getId().equals(clientId) && currentUser .getRole().equals(Role.ROLE_USER)) {
+                return new ResponseEntity<>(client, HttpStatus.OK);
+            }
+        }
+
+        if (currentUser .getRole().equals(Role.ROLE_ADMIN) || currentUser .getRole().equals(Role.ROLE_SUPERADMIN)) {
             return new ResponseEntity<>(client, HttpStatus.OK);
         }
-        else if(currentUser.getRole().equals(Role.ROLE_ADMIN) || currentUser.getRole().equals(Role.ROLE_SUPERADMIN)){
-            return new ResponseEntity<>(client, HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 }

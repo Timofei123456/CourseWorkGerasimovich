@@ -1,6 +1,7 @@
 package cours.controller;
 
 import cours.entity.Account;
+import cours.entity.Client;
 import cours.entity.Role;
 import cours.entity.User;
 import cours.service.AccountService;
@@ -33,6 +34,19 @@ public class AccountController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(entities, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/accountsInRange/{minBalance}/{maxBalance}")
+    public ResponseEntity<List<Account>> getAccountsInRange(@PathVariable double minBalance, @PathVariable double maxBalance) {
+        List<Account> accountsInDiapason = service.read();
+        for (Account account : accountsInDiapason)
+        if (accountsInDiapason.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else if (account.getBalance() < minBalance || account.getBalance() > maxBalance) {
+            accountsInDiapason.remove(account);
+        }
+        return new ResponseEntity<>(accountsInDiapason, HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}/balance")
@@ -89,6 +103,16 @@ public class AccountController {
         return checkListOfEntityAndRole(accounts);
     }
 
+    @GetMapping("/currentUser")
+    public ResponseEntity<List<Account>> getAccountsOfCurrentUser() {
+        User currentUser  = getCurrentUser ();
+        if (currentUser  == null) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        List<Account> accounts = service.readByClient(currentUser.getClient().getId());
+        return checkListOfEntityAndRole(accounts);
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> putAccount(@RequestBody Account entity) {
@@ -117,6 +141,19 @@ public class AccountController {
         service.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
+    @PutMapping("/copyAccount/{sourceId}/{targetId}")
+    public ResponseEntity<String> copyAccount(@PathVariable Long sourceId, @PathVariable Long targetId) {
+        Account sourceAccount = service.read(sourceId);
+        Account targetAccount = service.read(targetId);
+
+        targetAccount.setBalance(sourceAccount.getBalance());
+        targetAccount.setTransactions(new ArrayList<>(sourceAccount.getTransactions()));
+
+        service.edit(targetAccount);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -131,15 +168,19 @@ public class AccountController {
 
         User currentUser = getCurrentUser();
 
-        if (currentUser.getClient().getAccounts().stream()
-                .anyMatch(acc -> acc.getId().equals(account.getId())) &&
-                currentUser.getRole().equals(Role.ROLE_USER)) {
-            return new ResponseEntity<>(account, HttpStatus.OK);
-        } else if (currentUser.getRole().equals(Role.ROLE_ADMIN) || currentUser.getRole().equals(Role.ROLE_SUPERADMIN)) {
-            return new ResponseEntity<>(account, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        Client userClient = currentUser.getClient();
+        if (userClient != null) {
+            if (currentUser.getRole().equals(Role.ROLE_USER) &&
+                    userClient.getAccounts().stream().anyMatch(acc -> acc.getId().equals(account.getId()))) {
+                return new ResponseEntity<>(account, HttpStatus.OK);
+            }
         }
+
+        if (currentUser .getRole().equals(Role.ROLE_ADMIN) || currentUser .getRole().equals(Role.ROLE_SUPERADMIN)) {
+            return new ResponseEntity<>(account, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<List<Account>> checkListOfEntityAndRole(List<Account> accounts) {

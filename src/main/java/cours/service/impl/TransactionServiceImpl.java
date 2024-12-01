@@ -6,6 +6,7 @@ import cours.repository.AccountRepository;
 import cours.repository.TransactionRepository;
 import cours.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,8 +48,24 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public void deleteAll() {
+        List<Transaction> transactions = transactionRepository.findAll();
+        for (Transaction transaction : transactions) {
+            Account account = transaction.getAccount();
+            account.getTransactions().remove(transaction);
+            accountRepository.save(account);
+        }
+        transactionRepository.deleteAll();
+    }
+
+    @Override
     public List<Transaction> readByTransactionType(String type) {
         return transactionRepository.findByTransactionType(type);
+    }
+
+    @Override
+    public List<Transaction> readAllSortedByDate() {
+        return transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "transactionDate"));
     }
 
     @Override
@@ -59,16 +76,14 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void edit(Transaction entity) {
         Account account = entity.getAccount();
-        Long gId = account.getId();
-        Long sId = entity.getId();
-        account = accountRepository.findById(gId).orElseThrow(IllegalArgumentException::new);
-        Transaction transaction = account.getTransactions().stream().filter(s -> sId.equals(s.getId())).findAny()
+        Long aId = account.getId();
+        Long tId = entity.getId();
+        account = accountRepository.findById(aId).orElseThrow(IllegalArgumentException::new);
+        Transaction transaction = account.getTransactions().stream().filter(t -> tId.equals(t.getId())).findAny()
                 .orElseThrow(IllegalArgumentException::new);
-        transaction.setAccount(account);
         transaction.setTransactionType(entity.getTransactionType());
         transaction.setTransactionDate(entity.getTransactionDate());
         transaction.setAmount(entity.getAmount());
-        account.getTransactions().add(transaction);
-        transactionRepository.save(transaction);
+        transactionRepository.save(transaction); // Сохраняем транзакцию
     }
 }

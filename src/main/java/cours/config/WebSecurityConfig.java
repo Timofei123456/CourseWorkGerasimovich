@@ -44,7 +44,8 @@ public class WebSecurityConfig {
                 }))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/users/{userId}").hasAnyRole("USER", "ADMIN", "SUPERADMIN")
+                        .requestMatchers("/user/{userId}").hasAnyRole("USER", "ADMIN", "SUPERADMIN")
+                        .requestMatchers("/user/username/{username}").hasAnyRole("USER", "ADMIN", "SUPERADMIN")
                         .requestMatchers(HttpMethod.GET, "/**").hasAnyRole("USER", "ADMIN", "SUPERADMIN")
                         .requestMatchers(HttpMethod.POST, "/**").hasAnyRole("USER", "ADMIN", "SUPERADMIN")
                         .requestMatchers(HttpMethod.PUT, "/**").hasAnyRole("ADMIN", "SUPERADMIN")
