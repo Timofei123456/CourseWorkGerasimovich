@@ -49,16 +49,19 @@ public class ClientController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> putClient(@RequestBody Client entity) {
+    public ResponseEntity<String> updateClient(@RequestBody Client entity) {
         service.edit(entity);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping(consumes = "application/json")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> postClient(@RequestBody Client entity) {
-            service.save(entity);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<String> addClient(@RequestBody Client client) {
+        service.save(client);
+        User user = userService.createUser ("client" + client.getId(), "client" + client.getId());
+        client.setUser (user);
+        service.edit(client);
+        return new ResponseEntity<>( HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('SUPERADMIN')")

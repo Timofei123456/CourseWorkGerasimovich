@@ -53,6 +53,22 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
+    @GetMapping("/current")
+    public ResponseEntity<User> getCurrentUser () {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        String currentUsername = authentication.getName();
+        User currentUser  = service.getByUsername(currentUsername);
+
+        if (currentUser  == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(currentUser , HttpStatus.OK);
+    }
     @GetMapping("/username/{username}")
     public ResponseEntity<User> getByUsername(@PathVariable String username) {
         User user = service.getByUsername(username);

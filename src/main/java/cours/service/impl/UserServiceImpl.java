@@ -1,9 +1,11 @@
 package cours.service.impl;
 
+import cours.entity.Role;
 import cours.entity.User;
 import cours.repository.UserRepository;
 import cours.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public User read(Long id) {
@@ -47,6 +51,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
 
+    }
+
+    public User createUser (String username, String rawPassword) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(rawPassword)); // Шифруем пароль
+        user.setRole(Role.valueOf("ROLE_USER")); // Устанавливаем роль
+        userRepository.save(user); // Сохраняем пользователя
+        return user;
     }
     @Override
     public UserDetailsService userDetailsService() {

@@ -28,19 +28,18 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void save(Client entity) {
-        User user = entity.getUser();
-        Long id = user.getId();
-        user = userRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-        entity.setUser(user);
-        userRepository.save(user);
+        if (entity.getUser () != null) {
+            Long id = entity.getUser ().getId();
+            User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User  not found"));
+            entity.setUser (user);
+        }
         clientRepository.save(entity);
     }
 
     @Override
     public void delete(Long id) {
-        Client client = clientRepository.findById(id).get();
-        User user = client.getUser();
-        userRepository.save(user);
+        Client client = clientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Client not found"));
+        clientRepository.delete(client);
     }
 
     @Override
@@ -50,13 +49,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void edit(Client entity) {
-        User user = entity.getUser();
-        Long uId = user.getId();
-        Long cId = entity.getId();
-        user = userRepository.findById(uId).orElseThrow(IllegalArgumentException::new);
-        Client client = clientRepository.findById(cId).orElseThrow(IllegalArgumentException::new);
-        client.setUser(user);
+        Client client = clientRepository.findById(entity.getId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
         client.setName(entity.getName());
+        client.setSurname(entity.getSurname());
+        client.setPhone(entity.getPhone());
+        if (entity.getUser () != null) {
+            User user = userRepository.findById(entity.getUser ().getId()).orElseThrow(() -> new IllegalArgumentException("User  not found"));
+            client.setUser (user);
+        }
         clientRepository.save(client);
     }
 }
